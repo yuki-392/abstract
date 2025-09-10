@@ -1,33 +1,58 @@
-graph TD
-    %% 学習者
-    A[学習者（ナビゲータ役）]
+flowchart LR
 
-    %% 生成AIのモジュール
-    B[コード生成モジュール]
-    C[指示入力モジュール]
-    D[指示評価モジュール]
+    subgraph RightSide[ ]
+        direction TB  %% ここで縦方向に
+        %% ドライバ役システム（上）
+        subgraph DriverSystem[コード生成・修正システム]
+            EDB[誤り制御情報]
+            P1([ソースコード生成])
+            FSpec[関数仕様セット]
+            Code[ソースコード]
+            P3([ソースコード修正])
+        end
 
-    %% データベースや保持データ
-    DB1[(関数仕様DB)]
-    DB2[(誤り制御DB)]
-    DB3[(編集中ソースコード)]
+        %% 評価システム（下）
+        subgraph EvalSystem[評価システム]
+            P2([修正指示評価])
+        end
+    end
 
-    %% フロー
-    A -->|関数仕様を提示| DB1
-    DB1 --> B
-    B -->|誤りを含むソースコード| DB3
-    DB3 -->|ソースコード参照| A
+    %% 学習者（上）
+    subgraph User[学習者（ナビゲータ役）]
+        direction TB
+        Spec[関数仕様]
+        U[修正指示]
+        R[評価結果]
+        ReCheck([修正の再検討])
+        E[修正後ソースコード]
+    end
 
-    %% 学習者の指示
-    A -->|誤り修正の指示| C
-    DB3 -->|ソースコードを渡す| C
+    %% データフロー
+    Spec --> P1
+    EDB --> P1
+    P1 --> Code & FSpec
+    FSpec --> P3
+    P3 <--> Code
+    U --> P3
+    U & FSpec & Code --> P2
+    P3 --> E
+    P2 --> R
+    R --> ReCheck --> U
 
-    %% 修正処理
-    C -->|修正後ソースコード| DB3
-    C -->|指示内容と修正後ソースコード| D
+    %% 背景色スタイル定義
+    style EvalSystem fill:#ddd,stroke:#333,stroke-width:2px
+    style DriverSystem fill:#ddd,stroke:#333,stroke-width:2px
+    style User fill:#cfc,stroke:#333,stroke-width:2px
 
-    %% 評価
-    D -->|評価結果（正確性・網羅性）| A
-
-    %% 誤り制御
-    B -->|誤り情報を参照| DB2
+    %% ノードの色（背景白・文字黒）
+    style P1 fill:#fff,stroke:#000,color:#000
+    style P2 fill:#fff,stroke:#000,color:#000
+    style P3 fill:#fff,stroke:#000,color:#000
+    style Code fill:#fff,stroke:#000,color:#000
+    style FSpec fill:#fff,stroke:#000,color:#000
+    style EDB fill:#fff,stroke:#000,color:#000
+    style Spec fill:#fff,stroke:#000,color:#000
+    style U fill:#fff,stroke:#000,color:#000
+    style R fill:#fff,stroke:#000,color:#000
+    style ReCheck fill:#fff,stroke:#000,color:#000
+    style E fill:#fff,stroke:#000,color:#000

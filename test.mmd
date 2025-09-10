@@ -1,0 +1,15 @@
+flowchart LR
+    A[中央の要素]
+
+    subgraph RightTop[ ]
+        direction TB
+        B[右上の要素]
+    end
+
+    subgraph RightBottom[ ]
+        direction TB
+        C[右下の要素]
+    end
+
+    A --> B
+    A --> C

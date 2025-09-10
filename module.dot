@@ -1,0 +1,76 @@
+digraph G {
+    bgcolor=white
+    rankdir=LR
+    nodesep=0.3
+    ranksep=0.6
+    margin=0.1
+
+    node [shape=box, style="rounded,filled", fillcolor=white, fontcolor=black, fontname="Arial", fontsize=12]
+    edge [color=black, arrowhead=normal, fontname="Arial", fontsize=10]
+
+    // ==============================
+    // 学習者（絶対上）
+    // ==============================
+    subgraph cluster_User {
+        label="学習者（ナビゲータ役）"
+        style=filled
+        fillcolor="#cfc"
+        color="#333"
+
+        Spec [label="関数仕様"]
+        U [label="修正指示"]
+        R [label="評価結果"]
+        ReCheck [label="修正の再検討"]
+        E [label="修正後ソースコード"]
+    }
+
+    // ==============================
+    // 左下：生成・修正システム
+    // ==============================
+    subgraph cluster_DriverSystem {
+        label="コード生成・修正システム"
+        style=filled
+        fillcolor="#ddd"
+        color="#333"
+
+        EDB [label="誤り制御情報"]
+        P1 [label="ソースコード生成"]
+        FSpec [label="関数仕様セット"]
+        Code [label="ソースコード"]
+        P3 [label="ソースコード修正"]
+    }
+
+    // ==============================
+    // 右下：評価システム
+    // ==============================
+    subgraph cluster_EvalSystem {
+        label="評価システム"
+        style=filled
+        fillcolor="#ddd"
+        color="#333"
+
+        P2 [label="修正指示評価"]
+    }
+
+    // ==============================
+    // invisible ノードで上下固定
+    // ==============================
+    invisible_top [style=invis, width=0, height=0]
+    invisible_top -> Spec [style=invis]
+    invisible_top -> EDB [style=invis]
+    invisible_top -> P2 [style=invis]
+
+    // 下側システムを同じ高さに固定
+    { rank=same; cluster_DriverSystem; cluster_EvalSystem; }
+
+    // ==============================
+    // データフローはそのまま（矢印整形は無視）
+    // ==============================
+    Spec -> P1
+    U -> P3
+    U -> P2
+    FSpec -> P2
+    Code -> P2
+    P3 -> E
+    R -> ReCheck -> U
+}
